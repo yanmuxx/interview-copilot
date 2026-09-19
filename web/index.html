@@ -51,6 +51,7 @@
     <option value="full">完整回答（慢）</option>
   </select>
   <span style="flex:1"></span>
+  <button id="overlayBtn" class="ghost" style="width:auto;padding:7px 14px">📌 悬浮窗</button>
   <span id="status" class="pill">未启动</span>
   <button id="toggle" class="primary">开始面试</button>
 </header>
@@ -144,6 +145,10 @@ $("#savePersona").onclick = async () => {
 
 // ---------- 面试控制 ----------
 $("#toggle").onclick = () => running ? doStop() : doStart();
+$("#overlayBtn").onclick = async () => {
+  if (window.pywebview?.api?.toggle_overlay) await window.pywebview.api.toggle_overlay();
+  else sysLine("⚠ 悬浮窗需要用桌面程序启动（python app.py），浏览器模式不可用");
+};
 
 async function doStart() {
   const btn = $("#toggle");

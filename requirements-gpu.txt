@@ -1,0 +1,3 @@
+# NVIDIA 显卡用户安装（CUDA 运行库，共约 1.2GB；无显卡不必装）
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cudnn-cu12==9.26.0.51

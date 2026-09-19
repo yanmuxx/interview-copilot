@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>悬浮窗</title>
+<style>
+  :root { --bg:rgba(15,17,21,.94); --line:#2a2f3c; --txt:#e8ebf2; --dim:#8b93a5;
+          --blue:#4f8cff; --amber:#f5b544; --green:#3ecf8e; --red:#ff6b6b; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:transparent; font:13px/1.55 "Segoe UI","Microsoft YaHei",sans-serif;
+         width:100vw; height:100vh; overflow:hidden; }
+  .card { width:100%; height:100%; background:var(--bg); border:1px solid var(--line);
+          border-radius:10px; display:flex; flex-direction:column; overflow:hidden; }
+  .head { display:flex; align-items:center; gap:8px; padding:7px 10px;
+          border-bottom:1px solid var(--line); cursor:default; user-select:none; }
+  .dot { width:8px; height:8px; border-radius:50%; background:#566; }
+  .dot.on { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .title { color:var(--dim); font-size:12px; }
+  .sp { flex:1; }
+  .head button { background:none; border:none; color:var(--dim); font-size:13px;
+                 cursor:pointer; padding:0 5px; border-radius:5px; }
+  .head button:hover { color:var(--txt); background:#232833; }
+  .q { color:var(--blue); font-weight:600; padding:8px 12px 2px; display:-webkit-box;
+       -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .a { color:var(--amber); padding:4px 12px 8px; white-space:pre-wrap; flex:1;
+       overflow-y:auto; font-size:12.5px; }
+  .a .cursor { display:inline-block; width:7px; height:12px; background:var(--amber);
+               vertical-align:-1px; animation:blink 1s step-end infinite; }
+  @keyframes blink { 50% { opacity:0; } }
+  .a.err { color:var(--red); }
+  .foot { color:var(--dim); font-size:11px; text-align:center; padding:4px;
+          border-top:1px solid var(--line); }
+  .empty { color:var(--dim); text-align:center; margin:auto; font-size:12px; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="head pywebview-drag-region">
+    <span class="dot" id="dot"></span><span class="title">面试 Copilot</span>
+    <span class="sp"></span>
+    <button id="hideBtn" title="隐藏（Alt+Q 呼出）">—</button>
+    <button id="closeBtn" title="关闭悬浮窗">✕</button>
+  </div>
+  <div class="empty" id="empty">开始面试后，最新的提问和要点会显示在这里</div>
+  <div class="q" id="q" hidden></div>
+  <div class="a" id="a" hidden></div>
+  <div class="foot">Alt+Q 呼出 / 隐藏 · 拖动标题栏移动</div>
+</div>
+<script>
+const $ = s => document.querySelector(s);
+const dot = $("#dot"), qEl = $("#q"), aEl = $("#a");
+let curA = null;
+
+$("#hideBtn").onclick = () => window.pywebview?.api?.hide_overlay();
+$("#closeBtn").onclick = () => window.pywebview?.api?.close_overlay();
+
+function startQA(text) {
+  $("#empty")?.remove();
+  qEl.hidden = aEl.hidden = false;
+  qEl.textContent = text;
+  aEl.textContent = ""; aEl.classList.remove("err");
+  aEl.appendChild(cursor());
+  curA = aEl;
+}
+function cursor() { const c = document.createElement("span"); c.className = "cursor"; return c; }
+
+function handle(ev) {
+  if (ev.type === "transcript") {
+    startQA(ev.text);
+  } else if (ev.type === "answer_delta") {
+    if (!curA) return;
+    if (!curA.querySelector(".cursor")) curA.appendChild(cursor());
+    curA.insertBefore(document.createTextNode(ev.delta), curA.querySelector(".cursor"));
+    aEl.scrollTop = aEl.scrollHeight;
+  } else if (ev.type === "answer_done") {
+    curA?.querySelector(".cursor")?.remove(); curA = null;
+  } else if (ev.type === "status") {
+    dot.classList.toggle("on", ev.state === "listening");
+  } else if (ev.type === "error") {
+    if (curA) { curA.querySelector(".cursor")?.remove(); curA = null; }
+    $("#empty")?.remove(); qEl.hidden = aEl.hidden = false;
+    aEl.textContent = "⚠ " + ev.message; aEl.classList.add("err");
+  }
+}
+
+// 回放：只取最后一段问答（悬浮窗只关心最新内容）
+(async () => {
+  const { events } = await (await fetch("/api/interview/history")).json();
+  const last = events.map((e, i) => [e, i]).filter(([e]) => e.type === "transcript").pop();
+  if (last) events.slice(last[1]).forEach(handle);
+  const st = await (await fetch("/api/interview/state")).json();
+  dot.classList.toggle("on", st.running);
+})();
+
+const es = new EventSource("/api/interview/events");
+es.onmessage = m => handle(JSON.parse(m.data));
+es.onerror = () => { /* 断线自动重连 */ };
+</script>
+</body>
+</html>

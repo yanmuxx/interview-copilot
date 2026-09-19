@@ -83,6 +83,11 @@ def index():
     return FileResponse(ROOT / "web" / "index.html")
 
 
+@app.get("/overlay")
+def overlay_page():
+    return FileResponse(ROOT / "web" / "overlay.html")
+
+
 # ---------------- 配置 ----------------
 @app.get("/api/config")
 def get_config():

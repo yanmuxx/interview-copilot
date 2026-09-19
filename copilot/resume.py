@@ -40,8 +40,11 @@ def extract_text(filename: str, data: bytes) -> str:
             from pypdf import PdfReader
         except ImportError as e:
             raise RuntimeError("缺少 pypdf，请 pip install pypdf") from e
-        pages = PdfReader(io.BytesIO(data)).pages
-        text = "\n".join((page.extract_text() or "") for page in pages).strip()
+        try:
+            pages = PdfReader(io.BytesIO(data)).pages
+            text = "\n".join((page.extract_text() or "") for page in pages).strip()
+        except Exception as e:
+            raise RuntimeError(f"PDF 解析失败（文件可能损坏或已加密）: {e}") from e
         if not text:
             raise RuntimeError("这个 PDF 提取不出文字（可能是扫描版/图片版），请转成 docx 或 txt 再上传")
         return text

@@ -81,8 +81,9 @@ class SpeechSegmenter:
         self.threshold = threshold
         self.min_speech_ms = min_speech_ms
         self.min_silence_ms = min_silence_ms
-        self._pre_max = pre_pad_ms * SAMPLE_RATE // 1000
         self._win_ms = WINDOW * 1000 // SAMPLE_RATE
+        # 预滚缓冲按"窗口个数"计（deque 的 maxlen 数的是元素个数，元素=窗口）
+        self._pre_max = max(1, round(pre_pad_ms / self._win_ms))
         self._reset()
 
     def _reset(self):
@@ -90,6 +91,7 @@ class SpeechSegmenter:
         self._pre = deque(maxlen=self._pre_max)
         self._in_speech = False
         self._sil_ms = 0
+        self._speech_ms = 0                          # 纯语音时长（不含预滚和静音尾）
         self._seg = np.zeros(0, dtype=np.float32)
 
     def feed(self, samples: np.ndarray) -> np.ndarray | None:
@@ -103,17 +105,21 @@ class SpeechSegmenter:
                 if p >= self.threshold:
                     self._in_speech = True
                     self._sil_ms = 0
+                    self._speech_ms = self._win_ms
                     self._seg = np.concatenate([*self._pre, window])
             else:
                 self._seg = np.concatenate([self._seg, window])
-                if p < self.threshold:
+                if p >= self.threshold:
+                    self._speech_ms += self._win_ms
+                    self._sil_ms = 0
+                else:
                     self._sil_ms += self._win_ms
                     if self._sil_ms >= self.min_silence_ms:
-                        if self._seg.size * 1000 // SAMPLE_RATE >= self.min_speech_ms:
+                        # 是否成段只看纯语音时长，预滚缓冲不算数
+                        if self._speech_ms >= self.min_speech_ms:
                             segment = self._seg
                         self._in_speech = False
                         self._pre.clear()
                         self._seg = np.zeros(0, dtype=np.float32)
-                else:
-                    self._sil_ms = 0
+                        self._speech_ms = 0
         return segment

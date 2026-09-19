@@ -10,12 +10,20 @@
 ```bash
 cd interview-copilot
 python -m venv .venv        # 首次
-.venv\Scripts\pip install -r requirements.txt   # 首次（精确版本）
-# 要求与已验证环境 100% 一致时，改用：pip install -r requirements.lock
+.venv\Scripts\pip install -r requirements.txt        # 首次（基础依赖）
+.venv\Scripts\pip install -r requirements-gpu.txt    # NVIDIA 显卡用户（CUDA 运行库）
 .venv\Scripts\python app.py
 ```
 
+要求与已验证环境 100% 一致时，用 `pip install -r requirements.lock` 替代上面两行安装。
+
 `app.py` 会打开一个桌面窗口（WebView2）；若环境不支持则自动退回浏览器打开。
+
+## 悬浮窗
+
+主界面点「📌 悬浮窗」或按 **Alt+Q** 全局热键，呼出一个置顶小卡片：
+只显示最新的提问和正在流式输出的要点，拖标题栏移动，练习时挂在屏幕角落用。
+它是**正常可见的窗口**（屏幕共享时同样会被共享出去），Alt+Q 只是本地显隐。
 
 ## 界面使用
 
@@ -34,7 +42,7 @@ python -m venv .venv        # 首次
 .venv\Scripts\python main.py
 ```
 
-首次运行会自动下载两个小模型：Silero VAD（2MB）+ whisper base（~145MB，走国内镜像）。
+首次运行会自动下载 Silero VAD（2MB）+ 所选 whisper 模型（走国内镜像，已默认禁用 Xet 下载通道）。
 
 ## 调优
 

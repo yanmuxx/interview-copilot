@@ -96,6 +96,19 @@ def copytree(src, dst, **kw):
     shutil.copytree(src, dst, dirs_exist_ok=True, **kw)
 
 
+def _site_packages() -> Path:
+    """本机开发用 .venv；CI 等环境没有 .venv 时，用当前解释器的 site-packages。"""
+    venv_sp = ROOT / ".venv" / "Lib" / "site-packages"
+    if venv_sp.exists():
+        return venv_sp
+    import site
+    for cand in reversed(site.getsitepackages()):
+        p = Path(cand)
+        if (p / "fastapi").exists():
+            return p
+    raise RuntimeError("找不到 site-packages：请先安装依赖 pip install -r requirements.txt")
+
+
 def main():
     if PKG.exists():
         print("清理旧的打包目录 ...")
@@ -106,7 +119,7 @@ def main():
     runtime.mkdir(parents=True)
     with zipfile.ZipFile(download_embeddable()) as z:
         z.extractall(runtime)
-    copytree(ROOT / ".venv" / "Lib" / "site-packages", runtime / "Lib" / "site-packages", ignore=IGNORE)
+    copytree(_site_packages(), runtime / "Lib" / "site-packages", ignore=IGNORE)
     pth = runtime / f"python{sys.version_info.major}{sys.version_info.minor}._pth"
     pth.write_text("python313.zip\n.\nLib\\site-packages\nimport site\n", encoding="ascii")
 
