@@ -137,7 +137,11 @@ def main():
             copytree(src, app / name, ignore=IGNORE)
         else:
             shutil.copy2(src, app / name)
-    copytree(ROOT / "models", app / "models")  # Silero VAD
+    if (ROOT / "models").exists():
+        copytree(ROOT / "models", app / "models")  # Silero VAD
+    else:
+        # CI/干净检出的环境没有预下载的 VAD 模型：打包应用首次运行会自动联网下载
+        print("!! 仓库无 models/ 目录，跳过；打包应用首次运行会自动下载 VAD 模型")
 
     # 安全：包里绝不能带开发者自己的 API Key（解析后整写，不怕用户手工改过格式）
     import tomllib
