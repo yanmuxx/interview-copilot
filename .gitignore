@@ -17,3 +17,7 @@ sse_*.log
 # 个人配置，绝不入库（首次运行会自动从 example 模板生成）
 config.toml
 persona.md
+logs/
+experience/
+experience.md
+ab_test_result.md

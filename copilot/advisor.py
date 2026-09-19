@@ -33,11 +33,15 @@ _MODE_PROMPTS = {"brief": SYSTEM_PROMPT, "full": FULL_ANSWER_PROMPT}
 
 
 class Advisor:
-    def __init__(self, api_key: str, base_url: str, model: str, persona: str, mode: str = "brief"):
+    def __init__(self, api_key: str, base_url: str, model: str, persona: str,
+                 mode: str = "brief", experience: str = ""):
         self.model = model
         # 面试工具必须快失败：网络半死不活时最多等 30 秒，不重试拖时间
         self.client = OpenAI(api_key=api_key, base_url=base_url, timeout=30, max_retries=1)
         self.system = _MODE_PROMPTS.get(mode, SYSTEM_PROMPT).format(persona=persona)
+        if experience.strip():
+            self.system += ("\n【历史模拟面试沉淀的经验（多场复盘得出，答题时遵循，避免重蹈覆辙）】\n"
+                            + experience.strip()[:800])
 
     def stream_answer(self, question: str):
         resp = self.client.chat.completions.create(

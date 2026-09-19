@@ -49,8 +49,11 @@ class InterviewPipeline:
         api_key = cfg["llm"].get("api_key") or ""
         self.advisor = None
         if api_key:
+            exp_file = ROOT / "experience.md"
+            experience = exp_file.read_text(encoding="utf-8") if exp_file.exists() else ""
             self.advisor = Advisor(
-                api_key, cfg["llm"]["base_url"], cfg["llm"]["model"], persona, mode=mode
+                api_key, cfg["llm"]["base_url"], cfg["llm"]["model"], persona,
+                mode=mode, experience=experience,
             )
 
         asr_cfg = cfg["asr"]
