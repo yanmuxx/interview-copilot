@@ -12,6 +12,10 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
+# CI 机器控制台可能是 charmap 编码，中文 print 会直接抛异常
+sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 ROOT = Path(__file__).resolve().parent
 DIST = ROOT / "dist"
 PKG = DIST / "面试Copilot"
