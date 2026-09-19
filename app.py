@@ -65,20 +65,11 @@ def _toggle_overlay():
             pass
         _OVERLAY["win"] = None
         return
-    x, y = 120, 90
-    try:  # 默认贴主屏右上角
-        s = webview.screens[0]
-        x, y = max(0, s.width - 380 - 40), 90
-    except Exception:
-        pass
-    try:  # 兜底：多屏/DPI 下 webview.screens 可能报虚拟宽度，确保落在系统主屏内
-        primary = ctypes.windll.user32.GetSystemMetrics(0)  # SM_CXSCREEN
-        x = min(x, max(0, primary - 380 - 40))
-    except Exception:
-        pass
+    # 固定放主屏左上角：任何机器上坐标 (60,90) 都必然可见。
+    # 不要用 webview.screens 做贴边计算——DPI 虚拟化下它可能报假宽度，把窗口送出屏幕外。
     _OVERLAY["win"] = webview.create_window(
         "copilot-overlay", URL + "/overlay", js_api=Api(_OVERLAY),
-        width=380, height=280, x=x, y=y,
+        width=380, height=280, x=60, y=90,
         frameless=True, on_top=True, easy_drag=False, transparent=True,
     )
 
