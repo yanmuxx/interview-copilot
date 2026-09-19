@@ -3,7 +3,7 @@ __pycache__/
 *.pyc
 
 # 虚拟环境（用 requirements.txt / requirements.lock 重建）
-.venv/
+.venv*/
 
 # 打包产物（python build_portable.py 生成，几个 GB）
 dist/

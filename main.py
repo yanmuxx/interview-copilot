@@ -106,8 +106,12 @@ def main():
     advisor = None
     if api_key:
         persona = (ROOT / "persona.md").read_text(encoding="utf-8")
-        advisor = Advisor(api_key, cfg["llm"]["base_url"], cfg["llm"]["model"], persona)
-        print(f"[llm] 已接入 {cfg['llm']['model']}，问题会自动生成答题要点")
+        exp_file = ROOT / "experience.md"
+        experience = exp_file.read_text(encoding="utf-8") if exp_file.exists() else ""
+        advisor = Advisor(api_key, cfg["llm"]["base_url"], cfg["llm"]["model"], persona,
+                          experience=experience)
+        print(f"[llm] 已接入 {cfg['llm']['model']}，问题会自动生成答题要点"
+              + ("（已注入历史面试经验）" if experience.strip() else ""))
     else:
         print(f"{C['err']}[llm] 未配置 api_key（config.toml 或环境变量 LLM_API_KEY），只转写不出要点{C['end']}")
 
