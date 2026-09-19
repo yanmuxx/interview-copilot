@@ -1,0 +1,16 @@
+# 直接依赖（精确版本 = 当前已验证的环境；完全复现用 requirements.lock）
+# 提示：无 NVIDIA 显卡的机器可删掉最后两行（约省 1.2GB），并把 config.toml 的 model 改为 base
+pyaudiowpatch==0.2.12.8
+numpy==2.5.3
+onnxruntime==1.30.0
+faster-whisper==1.2.1
+openai==3.16.2
+fastapi==0.141.1
+uvicorn==0.53.0
+python-multipart==0.0.32
+pypdf==6.19.0
+python-docx==1.2.0
+tomli_w==1.2.0
+pywebview==6.2.1
+nvidia-cublas-cu12==12.9.2.10
+nvidia-cudnn-cu12==9.26.0.51

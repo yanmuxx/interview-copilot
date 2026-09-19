@@ -1,0 +1,22 @@
+# 复制为 config.toml 后使用（程序首次运行也会自动生成）
+# [llm] 的 api_key 填你自己的：DeepSeek / GLM / Kimi 等 OpenAI 兼容接口均可
+
+[asr]
+# 有 NVIDIA 显卡用 large-v3-turbo（GPU 又快又准）；无 GPU 的机器改回 base 或 small
+model = "large-v3-turbo"
+device = "auto"       # auto=优先GPU、失败自动回退CPU；也可强制 cuda / cpu
+language = "zh"
+compute_type = "int8" # CPU 模式用量化；GPU 模式自动用 float16
+# 领域热词：纠正同音字（线程/现成、分布式锁/分布失所）。按你的面试方向增删
+hotwords = "SQL注入 XSS 越权 SSRF 文件上传 反序列化 命令注入 WAF 渗透测试 护网 红队 蓝队 应急响应 溯源 资产测绘 内网横向 提权 BurpSuite Yakit Nmap"
+
+[vad]
+threshold = 0.5
+min_speech_ms = 250      # 短于这个时长的语音段直接丢弃（咳嗽、杂音）
+min_silence_ms = 450     # 静默超过这个时长视为"问题问完了"，开始转写
+
+[llm]
+api_key = ""
+# 任何 OpenAI 兼容接口都可以：DeepSeek / GLM / Kimi / OpenAI ...
+base_url = "https://api.deepseek.com/v1"
+model = "deepseek-chat"
