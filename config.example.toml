@@ -2,7 +2,8 @@
 # [llm] 的 api_key 填你自己的：DeepSeek / GLM / Kimi 等 OpenAI 兼容接口均可
 
 [asr]
-# 有 NVIDIA 显卡用 large-v3-turbo（GPU 又快又准）；无 GPU 的机器改回 base 或 small
+# GPU 显卡型号够用时的两档：large-v3（最准，~3GB，推荐）/ large-v3-turbo（更快，~1.6GB）
+# 无 NVIDIA 显卡的机器改回 base 或 small（程序检测不到 GPU 时也会自动降级到 base）
 model = "large-v3-turbo"
 device = "auto"       # auto=优先GPU、失败自动回退CPU；也可强制 cuda / cpu
 language = "zh"

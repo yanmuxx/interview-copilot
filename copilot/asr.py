@@ -5,6 +5,9 @@ import os
 
 # 默认走国内镜像下载模型，已经设置了 HF_ENDPOINT 的话以用户设置为准
 os.environ.setdefault("HF_ENDPOINT", "https://hf-mirror.com")
+# 新模型仓库走 Xet 存储后端，其 CDN（us.aws.cdn.hf.co）国内直连不通，
+# 禁用后回落到镜像站的普通 HTTP 下载（large-v3 实测需要）
+os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
 
 # Windows 下让 ctranslate2 找到 pip 安装的 CUDA 运行库（nvidia-cublas-cu12 / nvidia-cudnn-cu12）
 import site
