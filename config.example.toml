@@ -8,7 +8,7 @@ device = "auto"       # auto=优先GPU、失败自动回退CPU；也可强制 cu
 language = "zh"
 compute_type = "int8" # CPU 模式用量化；GPU 模式自动用 float16
 # 领域热词：纠正同音字（线程/现成、分布式锁/分布失所）。按你的面试方向增删
-hotwords = "SQL注入 XSS 越权 SSRF 文件上传 反序列化 命令注入 WAF 渗透测试 护网 红队 蓝队 应急响应 溯源 资产测绘 内网横向 提权 BurpSuite Yakit Nmap"
+hotwords = ""
 
 [vad]
 threshold = 0.5
